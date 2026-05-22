@@ -1,0 +1,65 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ── Virtual environments ───────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+.env/
+ENV/
+
+# ── Environment variables (may contain secrets) ────────────────────────────────
+.env
+.env.*
+*.env
+
+# ── Flask / runtime ────────────────────────────────────────────────────────────
+instance/
+flask_session/
+
+# ── User project data — PDFs + metadata (NEVER upload to git) ──────────────────
+projects/
+
+# ── Proprietary fonts — obtain from Microsoft Word (see README) ────────────────
+fonts/*.ttf
+fonts/*.otf
+fonts/*.woff
+fonts/*.woff2
+# Allow only the open-source Frank Ruhl Libre files that ship with the repo
+!fonts/FrankRuhlLibre-Regular.ttf
+!fonts/FrankRuhlLibre-Bold.ttf
+!fonts/FrankRuhlLibre-Regular.woff2
+!fonts/OFL.txt
+
+# ── macOS ─────────────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# ── macOS app bundle (built locally via scripts/build_app.py) ─────────────────
+*.app
+
+# ── IDE / editor ──────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.claude/
+
+# ── Logs & temp ───────────────────────────────────────────────────────────────
+*.log
+/tmp/
+temp/

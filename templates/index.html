@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>כלי נספחים משפטיים</title>
+  <style>
+    :root {
+      --blue: #1a56db; --blue-light: #e8f0fe; --blue-dark: #1240a8;
+      --green: #0d7c4d; --green-light: #e6f4ee;
+      --red: #c0392b; --red-light: #fdecea;
+      --amber: #92400e; --amber-light: #fffbeb; --amber-border: #fde68a;
+      --purple: #6d28d9; --purple-light: #ede9fe;
+      --gray: #f4f5f7; --gray-dark: #6b7280;
+      --border: #d1d5db; --text: #111827;
+      --sidebar-w: 260px;
+      --radius: 8px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+           font-size: 14px; color: var(--text); background: #f3f4f6;
+           direction: rtl; min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* ── Header ── */
+    header {
+      background: var(--blue); color: #fff;
+      padding: 14px 24px; display: flex; align-items: center; gap: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2); flex-shrink: 0; z-index: 10;
+    }
+    header h1 { font-size: 18px; font-weight: 700; }
+    header p  { font-size: 12px; opacity: .8; margin-top: 1px; }
+
+    /* ── Layout ── */
+    .layout { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 56px); }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w); background: #fff; border-left: 1px solid var(--border);
+      display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden;
+    }
+    .sidebar-header {
+      padding: 14px 16px 10px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .sidebar-header h2 { font-size: 13px; font-weight: 600; color: #374151; }
+    .btn-new-project {
+      background: var(--blue-light); color: var(--blue);
+      border: none; border-radius: 5px; padding: 5px 10px;
+      font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit;
+    }
+    .btn-new-project:hover { background: #d0e3fc; }
+    .project-list { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 4px; }
+    .project-item {
+      padding: 10px 12px; border-radius: 6px; cursor: pointer;
+      border: 1px solid transparent; transition: all .15s;
+      display: flex; flex-direction: column; gap: 3px;
+    }
+    .project-item:hover { background: var(--gray); border-color: var(--border); }
+    .project-item.active { background: var(--blue-light); border-color: #93c5fd; }
+    .project-item .proj-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .project-item .proj-meta { font-size: 11px; color: var(--gray-dark); display: flex; gap: 8px; }
+    .project-item .proj-actions { display: none; gap: 4px; margin-top: 4px; }
+    .project-item:hover .proj-actions { display: flex; }
+    .proj-del-btn {
+      background: none; border: none; color: var(--gray-dark); cursor: pointer;
+      font-size: 11px; padding: 2px 6px; border-radius: 4px;
+    }
+    .proj-del-btn:hover { color: var(--red); background: var(--red-light); }
+    .sidebar-empty { padding: 24px 16px; text-align: center; color: var(--gray-dark); font-size: 13px; }
+
+    /* ── Main content ── */
+    .main { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+
+    /* ── Card ── */
+    .card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+    .card-header {
+      padding: 12px 16px; background: var(--gray); border-bottom: 1px solid var(--border);
+      font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 8px;
+    }
+    .card-header .badge-optional {
+      font-size: 10px; font-weight: 500; color: var(--gray-dark);
+      background: #e5e7eb; border-radius: 10px; padding: 1px 7px; margin-right: auto;
+    }
+    .card-body { padding: 16px; }
+
+    /* ── Project name bar ── */
+    .project-bar {
+      display: flex; align-items: center; gap: 10px;
+      background: #fff; border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 10px 14px; box-shadow: var(--shadow);
+    }
+    .project-bar label { font-size: 13px; font-weight: 600; color: #374151; white-space: nowrap; }
+    .project-bar input {
+      flex: 1; border: 1px solid var(--border); border-radius: 5px;
+      padding: 6px 10px; font-size: 14px; direction: rtl; font-family: inherit;
+    }
+    .project-bar input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 2px rgba(26,86,219,.1); }
+    .unsaved-dot { width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; flex-shrink: 0; display: none; }
+    .unsaved-dot.visible { display: block; }
+
+    /* ── Form inputs ── */
+    label { display: block; font-size: 12px; font-weight: 500; margin-bottom: 3px; color: #374151; }
+    input[type=number] {
+      border: 1px solid var(--border); border-radius: 5px; padding: 6px 8px;
+      font-size: 13px; font-family: inherit; direction: rtl;
+    }
+    input[type=number]:focus { outline: none; border-color: var(--blue); }
+
+    /* ── Drop zones ── */
+    .drop-zone {
+      border: 2px dashed var(--border); border-radius: var(--radius);
+      padding: 24px 16px; text-align: center; cursor: pointer;
+      transition: border-color .2s, background .2s;
+    }
+    .drop-zone:hover, .drop-zone.drag-over { border-color: var(--blue); background: var(--blue-light); }
+    .drop-zone p { font-size: 14px; font-weight: 500; color: #374151; margin-top: 8px; }
+    .drop-zone small { color: var(--gray-dark); font-size: 12px; }
+    .drop-zone-sm {
+      border: 2px dashed var(--border); border-radius: 6px;
+      padding: 14px 16px; text-align: center; cursor: pointer;
+      transition: border-color .2s, background .2s; display: flex;
+      align-items: center; justify-content: center; gap: 8px;
+      font-size: 13px; color: #374151;
+    }
+    .drop-zone-sm:hover, .drop-zone-sm.drag-over { border-color: var(--blue); background: var(--blue-light); }
+    .drop-zone-sm svg { flex-shrink: 0; }
+
+    /* ── Main-doc loaded row ── */
+    .main-doc-row {
+      display: flex; align-items: center; gap: 8px;
+      background: #fafcff; border: 1px solid #bfdbfe; border-radius: 6px;
+      padding: 10px 12px;
+    }
+    .main-doc-row .file-name-label {
+      font-size: 12px; color: var(--gray-dark);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      min-width: 0; max-width: 160px;
+    }
+    .main-doc-row .file-name-input {
+      flex: 1; font-size: 13px; padding: 5px 8px;
+      border: 1px solid var(--border); border-radius: 5px; direction: rtl; font-family: inherit; min-width: 0;
+    }
+    .main-doc-row .file-name-input:focus { outline: none; border-color: var(--blue); }
+    .numbering-toggle {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: #374151; white-space: nowrap; flex-shrink: 0; cursor: pointer;
+    }
+    .numbering-toggle input[type=checkbox] { width: 15px; height: 15px; cursor: pointer; accent-color: var(--blue); }
+
+    /* ── File list rows ── */
+    .file-list { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+    .file-row {
+      display: flex; align-items: center; gap: 8px;
+      background: #fff; border: 1px solid var(--border); border-radius: 6px;
+      padding: 9px 10px; cursor: grab;
+      transition: box-shadow .15s, border-color .15s;
+    }
+    .file-row:active { cursor: grabbing; }
+    .file-row.dragging { opacity: .45; }
+    .file-row.drag-target { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(26,86,219,.15); }
+    .file-row.stored-file { background: #fafcff; }
+    .drag-handle { color: var(--gray-dark); flex-shrink: 0; }
+    .file-icon-pdf { flex-shrink: 0; color: #dc2626; }
+    .file-icon-stored { flex-shrink: 0; color: #2563eb; }
+    .file-name-label { font-size: 12px; color: var(--gray-dark); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 0 0 auto; max-width: 160px; }
+    .file-name-input {
+      flex: 1; font-size: 13px; padding: 5px 8px;
+      border: 1px solid var(--border); border-radius: 5px; direction: rtl; font-family: inherit; min-width: 0;
+    }
+    .file-name-input:focus { outline: none; border-color: var(--blue); }
+    .badge {
+      background: var(--blue-light); color: var(--blue); border-radius: 20px;
+      padding: 2px 8px; font-size: 11px; font-weight: 600; flex-shrink: 0; min-width: 50px; text-align: center;
+    }
+    .remove-btn {
+      background: none; border: none; color: var(--gray-dark); cursor: pointer;
+      padding: 2px 4px; border-radius: 4px; flex-shrink: 0; line-height: 1;
+    }
+    .remove-btn:hover { color: var(--red); background: var(--red-light); }
+    .replace-btn {
+      background: none; border: none; color: var(--gray-dark); cursor: pointer;
+      padding: 2px 4px; border-radius: 4px; flex-shrink: 0; line-height: 1;
+    }
+    .replace-btn:hover { color: var(--blue); background: var(--blue-light); }
+
+    /* ── Buttons ── */
+    .actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 18px; border-radius: 6px; font-size: 13px; font-weight: 600;
+      cursor: pointer; border: none; font-family: inherit;
+      transition: background .15s, transform .1s;
+    }
+    .btn:active { transform: scale(.98); }
+    .btn-primary { background: var(--blue); color: #fff; }
+    .btn-primary:hover { background: var(--blue-dark); }
+    .btn-primary:disabled { background: #93aee8; cursor: not-allowed; transform: none; }
+    .btn-save { background: #fff; color: #374151; border: 1px solid var(--border); }
+    .btn-save:hover { background: var(--gray); }
+    .btn-save:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    .btn-ghost { background: none; color: var(--blue); border: 1px solid var(--border); padding: 9px 14px; }
+    .btn-ghost:hover { background: var(--blue-light); }
+
+    /* ── Info bar ── */
+    .info-bar {
+      background: var(--amber-light); border: 1px solid var(--amber-border);
+      border-radius: 6px; padding: 8px 12px; font-size: 12px; color: var(--amber);
+      display: flex; gap: 6px;
+    }
+
+    /* ── Status ── */
+    #status-area { display: none; }
+    .status-processing {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px; background: var(--blue-light); border-radius: 6px;
+      font-size: 13px; color: var(--blue-dark);
+    }
+    .spinner {
+      width: 18px; height: 18px; border: 2px solid rgba(26,86,219,.3);
+      border-top-color: var(--blue); border-radius: 50%;
+      animation: spin .8s linear infinite; flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .status-done {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px; background: var(--green-light); border-radius: 6px; flex-wrap: wrap; gap: 8px;
+    }
+    .status-done .msg { display: flex; align-items: center; gap: 8px; color: var(--green); font-weight: 600; font-size: 13px; }
+    .btn-download {
+      background: var(--green); color: #fff; padding: 8px 16px;
+      border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer;
+      border: none; display: inline-flex; align-items: center; gap: 6px;
+      font-family: inherit; text-decoration: none;
+    }
+    .btn-download:hover { background: #0a6640; }
+    .status-error { padding: 12px; background: var(--red-light); border-radius: 6px; color: var(--red); font-size: 13px; }
+
+    /* ── Toast ── */
+    #save-toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: #1f2937; color: #fff; padding: 10px 20px; border-radius: 8px;
+      font-size: 13px; opacity: 0; transition: opacity .3s, transform .3s; pointer-events: none; z-index: 100;
+    }
+    #save-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4);
+      z-index: 50; align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #fff; border-radius: 10px; padding: 24px;
+      width: 340px; max-width: 90vw; box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    }
+    .modal h3 { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
+    .modal input {
+      width: 100%; border: 1px solid var(--border); border-radius: 6px;
+      padding: 8px 10px; font-size: 14px; direction: rtl; font-family: inherit; margin-bottom: 14px;
+    }
+    .modal input:focus { outline: none; border-color: var(--blue); }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+    .hint { font-size: 11px; color: var(--gray-dark); margin-top: 5px; }
+
+    /* ── Sequence banner ── */
+    .sequence-banner {
+      display: flex; align-items: center; gap: 0;
+      font-size: 11px; color: var(--gray-dark); padding: 6px 0 2px;
+    }
+    .seq-step {
+      display: flex; align-items: center; gap: 4px;
+      background: var(--gray); border: 1px solid var(--border);
+      border-radius: 4px; padding: 3px 10px; white-space: nowrap;
+    }
+    .seq-step.seq-toc { background: var(--blue-light); border-color: #bfdbfe; color: var(--blue); }
+    .seq-arrow { color: var(--border); margin: 0 4px; font-size: 14px; }
+
+    input[type=file] { display: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+    <path stroke-linecap="round" stroke-linejoin="round"
+      d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/>
+  </svg>
+  <div>
+    <h1>כלי נספחים משפטיים</h1>
+    <p>לפי הוראת מנהל בתי המשפט — צורת מסמך ומבנהו</p>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h2>הפרויקטים שלי</h2>
+      <button class="btn-new-project" onclick="newProject()">+ חדש</button>
+    </div>
+    <div class="project-list" id="project-list">
+      <div class="sidebar-empty">טוען...</div>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main class="main">
+
+    <!-- Project name bar -->
+    <div class="project-bar">
+      <label for="project-name">שם הפרויקט:</label>
+      <input type="text" id="project-name" placeholder="לדוגמה: פלוני נ׳ אלמוני — בש״א 1234/25" oninput="markDirty()">
+      <div class="unsaved-dot" id="unsaved-dot" title="שינויים שלא נשמרו"></div>
+      <button class="btn btn-save" id="save-btn" onclick="saveProject()" disabled>
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"/>
+        </svg>
+        שמור
+      </button>
+    </div>
+
+    <!-- Info -->
+    <div class="info-bar">
+      <span>ℹ️</span>
+      <span>מיספור ספרות ערביות · גופן David גודל 36 בדף המקדים · שוליים 2.5 ס"מ · מיספור עמודים רצוף · תוכן עניינים תמיד</span>
+    </div>
+
+    <!-- Document sequence banner -->
+    <div class="sequence-banner">
+      <span class="seq-step">כתב הטענות</span>
+      <span class="seq-arrow">←</span>
+      <span class="seq-step">מסמכים נוספים</span>
+      <span class="seq-arrow">←</span>
+      <span class="seq-step seq-toc">תוכן עניינים</span>
+      <span class="seq-arrow">←</span>
+      <span class="seq-step">נספחים</span>
+    </div>
+
+    <!-- ── Card: כתב הטענות ── -->
+    <div class="card">
+      <div class="card-header">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+        </svg>
+        כתב הטענות
+        <span class="badge-optional">אופציונלי</span>
+      </div>
+      <div class="card-body">
+        <div id="main-doc-area"></div>
+        <input type="file" id="main-doc-input" accept=".pdf" onchange="handleMainDoc(this.files[0])">
+      </div>
+    </div>
+
+    <!-- ── Card: מסמכים לפני תוכן עניינים ── -->
+    <div class="card">
+      <div class="card-header">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75M9 9h.008v.008H9V9zm10.5-6H5.25A2.25 2.25 0 003 5.25v13.5A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V5.25A2.25 2.25 0 0018.75 3z"/>
+        </svg>
+        מסמכים לפני תוכן העניינים
+        <span class="badge-optional">אופציונלי — תצהיר, ייפוי כוח...</span>
+      </div>
+      <div class="card-body">
+        <div id="pre-toc-drop-zone" class="drop-zone-sm" onclick="document.getElementById('pre-toc-input').click()">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+          </svg>
+          הוסף מסמכים PDF (ניתן לבחור מרובים)
+        </div>
+        <input type="file" id="pre-toc-input" multiple accept=".pdf" onchange="handlePreTocFiles(this.files)">
+        <div class="file-list" id="pre-toc-list"></div>
+      </div>
+    </div>
+
+    <!-- ── Card: נספחים ── -->
+    <div class="card">
+      <div class="card-header">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+        </svg>
+        נספחים
+      </div>
+      <div class="card-body">
+        <div id="drop-zone" class="drop-zone" onclick="document.getElementById('file-input').click()">
+          <svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="display:block;margin:0 auto">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6.75 12l-3-3m0 0l-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+          </svg>
+          <p>גרור קבצי PDF לכאן, או לחץ לבחירה</p>
+          <small>PDF בלבד · ניתן לגרור לסידור מחדש</small>
+        </div>
+        <input type="file" id="file-input" multiple accept=".pdf" onchange="handleAppendixFiles(this.files)">
+        <div class="file-list" id="file-list"></div>
+      </div>
+    </div>
+
+    <!-- ── Settings ── -->
+    <div class="card">
+      <div class="card-header">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0h9.75m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"/>
+        </svg>
+        הגדרות
+      </div>
+      <div class="card-body">
+        <div style="max-width:260px">
+          <label for="start-page">מספר עמוד ראשון ברצף המספור</label>
+          <input type="number" id="start-page" value="1" min="1" max="999" style="width:100px" oninput="markDirty()">
+          <p class="hint">בדרך כלל 1. אם כתב הטענות כבר ממוספר בנפרד — הכנס את המספר הבא אחריו</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button class="btn btn-primary" id="process-btn" onclick="processFiles()" disabled>
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 3l14 9-14 9V3z"/>
+        </svg>
+        עיבוד והכנת נספחים
+      </button>
+      <button class="btn btn-ghost" onclick="clearAll()">נקה</button>
+    </div>
+
+    <div id="status-area"></div>
+
+  </main>
+</div>
+
+<!-- Save-name modal -->
+<div class="modal-overlay" id="save-modal">
+  <div class="modal">
+    <h3>שמור פרויקט</h3>
+    <input type="text" id="modal-project-name" placeholder="שם הפרויקט" onkeydown="if(event.key==='Enter') confirmSave()">
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeSaveModal()">ביטול</button>
+      <button class="btn btn-primary" onclick="confirmSave()">שמור</button>
+    </div>
+  </div>
+</div>
+
+<div id="save-toast">✓ הפרויקט נשמר</div>
+
+<!-- shared hidden input for replacing a single file -->
+<input type="file" id="replace-input" accept=".pdf">
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────
+let mainDoc = null;
+// {source: 'new'|<id>, file: File|null, name: string, originalFilename: string, addNumbering: boolean}
+
+let preTocDocs = [];
+// [{source: 'new'|<id>, file: File|null, name: string, originalFilename: string}]
+
+let uploadedFiles = [];
+// [{source: 'new'|<id>, file: File|null, name: string, originalFilename: string}]
+
+let currentProjectId = null;
+let isDirty = false;
+let dragSrcIdx = null;     // for appendices list
+let dragPreIdx = null;     // for pre-toc list
+
+// ── Init ──────────────────────────────────────────────────────────────────
+loadProjectList();
+renderMainDocArea();
+renderPreTocList();
+renderFileList();
+
+// ── Dirty ─────────────────────────────────────────────────────────────────
+function markDirty() {
+  isDirty = true;
+  document.getElementById('unsaved-dot').classList.add('visible');
+  document.getElementById('save-btn').disabled = false;
+}
+function markClean() {
+  isDirty = false;
+  document.getElementById('unsaved-dot').classList.remove('visible');
+  document.getElementById('save-btn').disabled = false;
+}
+
+// ── Project list ──────────────────────────────────────────────────────────
+async function loadProjectList() {
+  const res = await fetch('/projects/list');
+  const projects = await res.json();
+  const list = document.getElementById('project-list');
+
+  if (!projects.length) {
+    list.innerHTML = '<div class="sidebar-empty">אין פרויקטים שמורים<br><small>לחץ "חדש" להתחיל</small></div>';
+    return;
+  }
+
+  list.innerHTML = projects.map(p => `
+    <div class="project-item ${p.id === currentProjectId ? 'active' : ''}"
+         onclick="loadProject('${p.id}')" id="proj-${p.id}">
+      <div class="proj-name">${escHtml(p.name)}</div>
+      <div class="proj-meta">
+        <span>${p.count} נספחים</span>
+        <span>${formatDate(p.updated)}</span>
+      </div>
+      <div class="proj-actions">
+        <button class="proj-del-btn" onclick="deleteProject(event,'${p.id}')">🗑 מחק</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function formatDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleDateString('he-IL', { day:'numeric', month:'short' });
+}
+
+// ── Load project ──────────────────────────────────────────────────────────
+async function loadProject(projectId) {
+  if (isDirty && !confirm('יש שינויים שלא נשמרו. להמשיך?')) return;
+
+  const res = await fetch(`/projects/${projectId}`);
+  if (!res.ok) { alert('שגיאה בטעינת הפרויקט'); return; }
+  const meta = await res.json();
+
+  currentProjectId = projectId;
+  document.getElementById('project-name').value = meta.name || '';
+  document.getElementById('start-page').value = meta.start_page || 1;
+
+  mainDoc = meta.main_doc ? {
+    source: meta.main_doc.id,
+    file: null,
+    name: meta.main_doc.name || '',
+    originalFilename: meta.main_doc.original_filename || meta.main_doc.name || '',
+    addNumbering: !!meta.main_doc.add_numbering,
+  } : null;
+
+  preTocDocs = (meta.pre_toc_docs || []).map(d => ({
+    source: d.id,
+    file: null,
+    name: d.name || '',
+    originalFilename: d.original_filename || d.name || '',
+  }));
+
+  uploadedFiles = (meta.appendices || []).map(a => ({
+    source: a.id,
+    file: null,
+    name: a.name || '',
+    originalFilename: a.original_filename || a.name || '',
+  }));
+
+  renderMainDocArea();
+  renderPreTocList();
+  renderFileList();
+  updateBtn();
+  markClean();
+  document.getElementById('save-btn').disabled = false;
+  document.querySelectorAll('.project-item').forEach(el => el.classList.remove('active'));
+  const el = document.getElementById(`proj-${projectId}`);
+  if (el) el.classList.add('active');
+  document.getElementById('status-area').style.display = 'none';
+}
+
+// ── New project ───────────────────────────────────────────────────────────
+function newProject() {
+  if (isDirty && !confirm('יש שינויים שלא נשמרו. להמשיך?')) return;
+  currentProjectId = null;
+  mainDoc = null;
+  preTocDocs = [];
+  uploadedFiles = [];
+  document.getElementById('project-name').value = '';
+  document.getElementById('start-page').value = '1';
+  document.getElementById('save-btn').disabled = true;
+  document.getElementById('unsaved-dot').classList.remove('visible');
+  isDirty = false;
+  renderMainDocArea();
+  renderPreTocList();
+  renderFileList();
+  updateBtn();
+  document.getElementById('status-area').style.display = 'none';
+  document.querySelectorAll('.project-item').forEach(el => el.classList.remove('active'));
+}
+
+// ── Main doc ──────────────────────────────────────────────────────────────
+function renderMainDocArea() {
+  const area = document.getElementById('main-doc-area');
+  if (!mainDoc) {
+    area.innerHTML = `
+      <div class="drop-zone-sm" id="main-doc-dz"
+           onclick="document.getElementById('main-doc-input').click()"
+           ondragover="dzDragOver(event,'main-doc-dz')"
+           ondragleave="dzDragLeave('main-doc-dz')"
+           ondrop="dzDrop(event,'main-doc-dz',handleMainDocDrop)">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+        </svg>
+        גרור קובץ PDF, או לחץ לבחירה
+      </div>`;
+  } else {
+    const isNew = mainDoc.source === 'new';
+    area.innerHTML = `
+      <div class="main-doc-row">
+        ${isNew
+          ? `<svg class="file-icon-pdf" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>`
+          : `<svg class="file-icon-stored" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>`
+        }
+        <span class="file-name-label" title="${escHtml(mainDoc.originalFilename)}">${escHtml(mainDoc.originalFilename)}</span>
+        <input class="file-name-input" type="text" value="${escHtml(mainDoc.name)}"
+               placeholder="שם הכתב"
+               oninput="mainDoc.name = this.value; markDirty()">
+        <label class="numbering-toggle" title="הוסף מספרי עמודים לכתב הטענות">
+          <input type="checkbox" ${mainDoc.addNumbering ? 'checked' : ''}
+                 onchange="mainDoc.addNumbering = this.checked; markDirty()">
+          הוסף מספור
+        </label>
+        <button class="replace-btn" title="החלף קובץ" onclick="replaceFile('main', -1)">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.678 48.678 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3l-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 003.7 3.7 48.656 48.656 0 007.324 0 4.006 4.006 0 003.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3l-3 3"/>
+          </svg>
+        </button>
+        <button class="remove-btn" onclick="removeMainDoc()">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>`;
+  }
+}
+
+function handleMainDoc(file) {
+  if (!file) return;
+  if (!file.name.toLowerCase().endsWith('.pdf')) { alert(`"${file.name}" אינו PDF`); return; }
+  mainDoc = { source: 'new', file, name: file.name.replace(/\.pdf$/i, ''), originalFilename: file.name, addNumbering: false };
+  renderMainDocArea();
+  markDirty();
+  document.getElementById('main-doc-input').value = '';
+}
+function handleMainDocDrop(files) { handleMainDoc(files[0]); }
+function removeMainDoc() { mainDoc = null; renderMainDocArea(); markDirty(); }
+
+// ── Pre-TOC docs ──────────────────────────────────────────────────────────
+function handlePreTocFiles(files) {
+  for (const file of files) {
+    if (!file.name.toLowerCase().endsWith('.pdf')) { alert(`"${file.name}" אינו PDF`); continue; }
+    preTocDocs.push({ source: 'new', file, name: file.name.replace(/\.pdf$/i, ''), originalFilename: file.name });
+  }
+  renderPreTocList();
+  markDirty();
+  document.getElementById('pre-toc-input').value = '';
+}
+
+function renderPreTocList() {
+  const list = document.getElementById('pre-toc-list');
+  if (!preTocDocs.length) { list.innerHTML = ''; return; }
+  list.innerHTML = preTocDocs.map((item, i) => `
+    <div class="file-row ${item.source !== 'new' ? 'stored-file' : ''}"
+         draggable="true"
+         ondragstart="preDragStart(${i})" ondragover="preDragOver(event,${i})"
+         ondrop="preDragDrop(event,${i})" ondragend="preDragEnd()"
+         id="pre-row-${i}">
+      <span class="drag-handle">
+        <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
+          <circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/>
+          <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
+          <circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
+        </svg>
+      </span>
+      ${item.source === 'new'
+        ? `<svg class="file-icon-pdf" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>`
+        : `<svg class="file-icon-stored" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>`
+      }
+      <span class="file-name-label" title="${escHtml(item.originalFilename)}">${escHtml(item.originalFilename)}</span>
+      <input class="file-name-input" type="text" value="${escHtml(item.name)}"
+             placeholder="שם המסמך"
+             oninput="preTocDocs[${i}].name = this.value; markDirty()">
+      <button class="replace-btn" title="החלף קובץ" onclick="replaceFile('pre-toc', ${i})">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.678 48.678 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3l-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 003.7 3.7 48.656 48.656 0 007.324 0 4.006 4.006 0 003.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3l-3 3"/>
+        </svg>
+      </button>
+      <button class="remove-btn" onclick="removePreToc(${i})">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+  `).join('');
+}
+
+function removePreToc(i) { preTocDocs.splice(i, 1); renderPreTocList(); markDirty(); }
+
+// Pre-TOC drag
+function preDragStart(i) { dragPreIdx = i; document.getElementById('pre-row-' + i).classList.add('dragging'); }
+function preDragOver(e, i) {
+  e.preventDefault();
+  document.querySelectorAll('#pre-toc-list .file-row').forEach(r => r.classList.remove('drag-target'));
+  if (i !== dragPreIdx) document.getElementById('pre-row-' + i)?.classList.add('drag-target');
+}
+function preDragDrop(e, i) {
+  e.preventDefault();
+  if (dragPreIdx === null || dragPreIdx === i) return;
+  const [moved] = preTocDocs.splice(dragPreIdx, 1);
+  preTocDocs.splice(i, 0, moved);
+  renderPreTocList();
+  markDirty();
+}
+function preDragEnd() {
+  dragPreIdx = null;
+  document.querySelectorAll('#pre-toc-list .file-row').forEach(r => { r.classList.remove('dragging'); r.classList.remove('drag-target'); });
+}
+
+// ── Drop zone helpers ─────────────────────────────────────────────────────
+function dzDragOver(e, id) { e.preventDefault(); document.getElementById(id).classList.add('drag-over'); }
+function dzDragLeave(id) { document.getElementById(id).classList.remove('drag-over'); }
+function dzDrop(e, id, handler) {
+  e.preventDefault();
+  document.getElementById(id).classList.remove('drag-over');
+  if (e.dataTransfer.files.length) handler(e.dataTransfer.files);
+}
+
+// Main appendices drop zone
+const dropZone = document.getElementById('drop-zone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleAppendixFiles(e.dataTransfer.files); });
+
+// Pre-toc drop zone
+const preTocDz = document.getElementById('pre-toc-drop-zone');
+preTocDz.addEventListener('dragover', e => { e.preventDefault(); preTocDz.classList.add('drag-over'); });
+preTocDz.addEventListener('dragleave', () => preTocDz.classList.remove('drag-over'));
+preTocDz.addEventListener('drop', e => { e.preventDefault(); preTocDz.classList.remove('drag-over'); handlePreTocFiles(e.dataTransfer.files); });
+
+// ── Appendices ────────────────────────────────────────────────────────────
+function handleAppendixFiles(files) {
+  for (const file of files) {
+    if (!file.name.toLowerCase().endsWith('.pdf')) { alert(`"${file.name}" אינו PDF`); continue; }
+    uploadedFiles.push({ source: 'new', file, name: file.name.replace(/\.pdf$/i, ''), originalFilename: file.name });
+  }
+  renderFileList();
+  updateBtn();
+  markDirty();
+  document.getElementById('file-input').value = '';
+}
+
+function renderFileList() {
+  const list = document.getElementById('file-list');
+  if (!uploadedFiles.length) { list.innerHTML = ''; return; }
+  list.innerHTML = uploadedFiles.map((item, i) => `
+    <div class="file-row ${item.source !== 'new' ? 'stored-file' : ''}"
+         draggable="true"
+         ondragstart="dragStart(${i})" ondragover="dragOver(event,${i})"
+         ondrop="dragDrop(event,${i})" ondragend="dragEnd()"
+         id="row-${i}">
+      <span class="drag-handle">
+        <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
+          <circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/>
+          <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
+          <circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
+        </svg>
+      </span>
+      <span class="badge">נספח ${i + 1}</span>
+      ${item.source === 'new'
+        ? `<svg class="file-icon-pdf" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>`
+        : `<svg class="file-icon-stored" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>`
+      }
+      <span class="file-name-label" title="${escHtml(item.originalFilename)}">${escHtml(item.originalFilename)}</span>
+      <input class="file-name-input" type="text" value="${escHtml(item.name)}"
+             placeholder="שם הנספח"
+             oninput="uploadedFiles[${i}].name = this.value; markDirty()">
+      <button class="replace-btn" title="החלף קובץ" onclick="replaceFile('appendix', ${i})">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.678 48.678 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3l-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 003.7 3.7 48.656 48.656 0 007.324 0 4.006 4.006 0 003.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3l-3 3"/>
+        </svg>
+      </button>
+      <button class="remove-btn" onclick="removeFile(${i})">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+  `).join('');
+}
+
+function removeFile(i) { uploadedFiles.splice(i, 1); renderFileList(); updateBtn(); markDirty(); }
+
+// ── Replace file ──────────────────────────────────────────────────────────
+function replaceFile(listName, idx) {
+  const input = document.getElementById('replace-input');
+  input.onchange = function () {
+    const file = this.files[0];
+    this.value = '';
+    if (!file) return;
+    if (!file.name.toLowerCase().endsWith('.pdf')) { alert(`"${file.name}" אינו PDF`); return; }
+    if (listName === 'appendix') {
+      uploadedFiles[idx] = { ...uploadedFiles[idx], source: 'new', file, originalFilename: file.name };
+      renderFileList();
+    } else if (listName === 'pre-toc') {
+      preTocDocs[idx] = { ...preTocDocs[idx], source: 'new', file, originalFilename: file.name };
+      renderPreTocList();
+    } else if (listName === 'main') {
+      mainDoc = { ...mainDoc, source: 'new', file, originalFilename: file.name };
+      renderMainDocArea();
+    }
+    markDirty();
+  };
+  input.click();
+}
+
+function clearAll() {
+  if ((mainDoc || preTocDocs.length || uploadedFiles.length) && !confirm('לנקות את כל הקבצים?')) return;
+  mainDoc = null; preTocDocs = []; uploadedFiles = [];
+  renderMainDocArea(); renderPreTocList(); renderFileList();
+  updateBtn(); markDirty();
+}
+
+function updateBtn() {
+  document.getElementById('process-btn').disabled = uploadedFiles.length === 0;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Appendices drag ───────────────────────────────────────────────────────
+function dragStart(i) { dragSrcIdx = i; document.getElementById('row-' + i).classList.add('dragging'); }
+function dragOver(e, i) {
+  e.preventDefault();
+  document.querySelectorAll('#file-list .file-row').forEach(r => r.classList.remove('drag-target'));
+  if (i !== dragSrcIdx) document.getElementById('row-' + i)?.classList.add('drag-target');
+}
+function dragDrop(e, i) {
+  e.preventDefault();
+  if (dragSrcIdx === null || dragSrcIdx === i) return;
+  const [moved] = uploadedFiles.splice(dragSrcIdx, 1);
+  uploadedFiles.splice(i, 0, moved);
+  renderFileList();
+  markDirty();
+}
+function dragEnd() {
+  dragSrcIdx = null;
+  document.querySelectorAll('#file-list .file-row').forEach(r => { r.classList.remove('dragging'); r.classList.remove('drag-target'); });
+}
+
+// ── Save ──────────────────────────────────────────────────────────────────
+function saveProject() {
+  if (!uploadedFiles.length && !mainDoc && !preTocDocs.length) { alert('אין קבצים לשמור'); return; }
+  const name = document.getElementById('project-name').value.trim();
+  if (!name) {
+    document.getElementById('modal-project-name').value = '';
+    document.getElementById('save-modal').classList.add('open');
+    setTimeout(() => document.getElementById('modal-project-name').focus(), 50);
+  } else {
+    doSave(name);
+  }
+}
+
+function closeSaveModal() { document.getElementById('save-modal').classList.remove('open'); }
+
+function confirmSave() {
+  const name = document.getElementById('modal-project-name').value.trim();
+  if (!name) return;
+  document.getElementById('project-name').value = name;
+  closeSaveModal();
+  doSave(name);
+}
+
+async function doSave(name) {
+  const formData = new FormData();
+  if (currentProjectId) formData.append('project_id', currentProjectId);
+  formData.append('project_name', name);
+  formData.append('start_page', document.getElementById('start-page').value || '1');
+
+  // main doc — upload order: main_pdf FIRST
+  if (mainDoc) {
+    formData.append('main_source', mainDoc.source);
+    formData.append('main_name', mainDoc.name);
+    formData.append('main_add_numbering', mainDoc.addNumbering ? '1' : '0');
+    if (mainDoc.source === 'new' && mainDoc.file) {
+      formData.append('main_pdf', mainDoc.file, mainDoc.originalFilename);
+    }
+  }
+
+  // pre-toc — upload order: pre_pdfs[] SECOND
+  for (const item of preTocDocs) {
+    formData.append('pre_names[]', item.name);
+    formData.append('pre_sources[]', item.source);
+    if (item.source === 'new' && item.file) {
+      formData.append('pre_pdfs[]', item.file, item.originalFilename);
+    }
+  }
+
+  // appendices — upload order: pdfs[] THIRD
+  for (const item of uploadedFiles) {
+    formData.append('names[]', item.name);
+    formData.append('sources[]', item.source);
+    if (item.source === 'new' && item.file) {
+      formData.append('pdfs[]', item.file, item.originalFilename);
+    }
+  }
+
+  try {
+    document.getElementById('save-btn').disabled = true;
+    const res = await fetch('/projects/save', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    currentProjectId = data.id;
+
+    // Reload meta to get stored IDs (replaces 'new' sources)
+    const metaRes = await fetch(`/projects/${currentProjectId}`);
+    const meta = await metaRes.json();
+
+    mainDoc = meta.main_doc ? {
+      source: meta.main_doc.id, file: null,
+      name: meta.main_doc.name || '', originalFilename: meta.main_doc.original_filename || meta.main_doc.name || '',
+      addNumbering: !!meta.main_doc.add_numbering,
+    } : null;
+
+    preTocDocs = (meta.pre_toc_docs || []).map(d => ({
+      source: d.id, file: null,
+      name: d.name || '', originalFilename: d.original_filename || d.name || '',
+    }));
+
+    uploadedFiles = (meta.appendices || []).map(a => ({
+      source: a.id, file: null,
+      name: a.name || '', originalFilename: a.original_filename || a.name || '',
+    }));
+
+    renderMainDocArea();
+    renderPreTocList();
+    renderFileList();
+    markClean();
+    document.getElementById('save-btn').disabled = false;
+    showToast('הפרויקט נשמר');
+    loadProjectList();
+
+  } catch (err) {
+    alert('שגיאה בשמירה: ' + err.message);
+    document.getElementById('save-btn').disabled = false;
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('save-toast');
+  t.textContent = '✓ ' + msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── Delete project ────────────────────────────────────────────────────────
+async function deleteProject(e, projectId) {
+  e.stopPropagation();
+  if (!confirm('למחוק את הפרויקט לצמיתות?')) return;
+  await fetch(`/projects/${projectId}`, { method: 'DELETE' });
+  if (currentProjectId === projectId) newProject();
+  loadProjectList();
+}
+
+// ── Process ───────────────────────────────────────────────────────────────
+async function processFiles() {
+  if (!uploadedFiles.length) return;
+
+  const total = (mainDoc ? 1 : 0) + preTocDocs.length + uploadedFiles.length;
+  const statusArea = document.getElementById('status-area');
+  statusArea.style.display = 'block';
+  statusArea.innerHTML = `<div class="status-processing"><div class="spinner"></div><span>מעבד ${uploadedFiles.length} נספחים${preTocDocs.length ? ' + ' + preTocDocs.length + ' מסמכים' : ''}${mainDoc ? ' + כתב טענות' : ''} — אנא המתן...</span></div>`;
+  document.getElementById('process-btn').disabled = true;
+
+  const formData = new FormData();
+  if (currentProjectId) formData.append('project_id', currentProjectId);
+  formData.append('start_page', document.getElementById('start-page').value || '1');
+
+  // main doc — upload first
+  if (mainDoc) {
+    formData.append('main_source', mainDoc.source);
+    formData.append('main_name', mainDoc.name);
+    formData.append('main_add_numbering', mainDoc.addNumbering ? '1' : '0');
+    if (mainDoc.source === 'new' && mainDoc.file) {
+      formData.append('main_pdf', mainDoc.file, mainDoc.originalFilename);
+    }
+  }
+
+  // pre-toc — second
+  for (const item of preTocDocs) {
+    formData.append('pre_names[]', item.name);
+    formData.append('pre_sources[]', item.source);
+    if (item.source === 'new' && item.file) {
+      formData.append('pre_pdfs[]', item.file, item.originalFilename);
+    }
+  }
+
+  // appendices — third
+  for (const item of uploadedFiles) {
+    formData.append('names[]', item.name);
+    formData.append('sources[]', item.source);
+    if (item.source === 'new' && item.file) {
+      formData.append('pdfs[]', item.file, item.originalFilename);
+    }
+  }
+
+  try {
+    const res = await fetch('/process', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || 'שגיאה');
+
+    const extraParts = [];
+    if (mainDoc) extraParts.push('כתב טענות');
+    if (preTocDocs.length) extraParts.push(`${preTocDocs.length} מסמכים נוספים`);
+    extraParts.push('תוכן עניינים');
+    const partsStr = extraParts.join(' + ');
+
+    statusArea.innerHTML = `
+      <div class="status-done">
+        <div class="msg">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          המסמך מוכן! (${data.count} נספחים + ${partsStr})
+        </div>
+        <a class="btn-download" href="/download/${data.id}" download="נספחים.pdf">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+          </svg>
+          הורד PDF
+        </a>
+      </div>`;
+  } catch (err) {
+    statusArea.innerHTML = `<div class="status-error">❌ שגיאה: ${err.message}</div>`;
+  } finally {
+    document.getElementById('process-btn').disabled = false;
+  }
+}
+</script>
+</body>
+</html>
