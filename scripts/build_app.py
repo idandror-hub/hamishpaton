@@ -14,7 +14,7 @@ set serverPort to "5050"
 -- Check if server already responds
 set isRunning to false
 try
-    do shell script "curl -s -f --max-time 1 http://localhost:" & serverPort & "/ > /dev/null"
+    do shell script "curl -s -f --max-time 1 http://127.0.0.1:" & serverPort & "/ > /dev/null"
     set isRunning to true
 end try
 
@@ -31,7 +31,7 @@ if not isRunning then
     end repeat
 end if
 
-open location "http://localhost:" & serverPort
+open location "http://127.0.0.1:" & serverPort
 '''
 
 # ── Icon via reportlab → PDF → PNG → ICNS ───────────────────────────────
