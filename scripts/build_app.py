@@ -25,13 +25,13 @@ if not isRunning then
     repeat 15 times
         delay 1
         try
-            do shell script "curl -s -f --max-time 1 http://localhost:" & serverPort & "/ > /dev/null"
+            do shell script "curl -s -f --max-time 1 http://127.0.0.1:" & serverPort & "/ > /dev/null"
             exit repeat
         end try
     end repeat
 end if
 
-open location "http://127.0.0.1:" & serverPort
+do shell script "open 'http://127.0.0.1:" & serverPort & "'"
 '''
 
 # ── Icon via reportlab → PDF → PNG → ICNS ───────────────────────────────
